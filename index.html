@@ -64,6 +64,8 @@
             overflow: hidden;
             transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
             border: 0 solid transparent;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
         .prompt-pre.expanded {
             max-height: 2000px;
@@ -126,16 +128,13 @@
         
         <nav id="sidebar-nav" class="space-y-1 flex-1 overflow-y-auto">
             <p class="text-[10px] font-bold text-gray-600 uppercase tracking-[0.3em] mb-6 px-3">Main Nodes</p>
-            <a href="#ai" data-section="ai" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-brain-circuit w-5"></i>Intelligence</a>
-            <a href="#image" data-section="image" class="nav-link flex items-center gap-4 p-3 rounded-xl text-emerald-400 hover:text-white transition-all"><i class="fas fa-image w-5"></i>Ai for Image</a>
-            <a href="#study" data-section="study" class="nav-link flex items-center gap-4 p-3 rounded-xl text-amber-500 hover:text-white transition-all"><i class="fas fa-book-open w-5"></i>Study</a>
-            <a href="#edu" data-section="edu" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-graduation-cap w-5"></i>Education</a>
-            <a href="#dev" data-section="dev" class="nav-link flex items-center gap-4 p-3 rounded-xl text-blue-400 hover:text-white transition-all"><i class="fas fa-terminal w-5"></i>Develope</a>
-            <a href="#sys" data-section="sys" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-microchip w-5"></i>System Ops</a>
-            <a href="#interesting" data-section="interesting" class="nav-link flex items-center gap-4 p-3 rounded-xl text-purple-400 hover:text-white transition-all"><i class="fas fa-star w-5"></i>Interesting</a>
+            <a href="#ai" data-section="ai" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-brain-circuit w-5 text-blue-500"></i>Intelligence</a>
+            <a href="#edu" data-section="edu" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-graduation-cap w-5 text-indigo-500"></i>Education</a>
+            <a href="#dev" data-section="dev" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-terminal w-5 text-emerald-500"></i>Dev Laboratory</a>
+            <a href="#sys" data-section="sys" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-microchip w-5 text-cyan-500"></i>System Ops</a>
+            <a href="#sec" data-section="sec" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-shield-halved w-5 text-red-500"></i>Security</a>
             <a href="#vault" data-section="vault" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all font-bold"><i class="fas fa-key w-5 text-amber-500"></i>Prompt Vault</a>
-            <div class="h-px bg-white/5 my-4"></div>
-            <a href="#sec" data-section="sec" class="nav-link flex items-center gap-4 p-3 rounded-xl text-red-500 hover:text-white transition-all text-xs uppercase font-bold tracking-widest"><i class="fas fa-shield-halved"></i> Security</a>
+            <a href="#private" data-section="private" class="nav-link flex items-center gap-4 p-3 rounded-xl text-gray-400 hover:text-white transition-all"><i class="fas fa-user-circle w-5 text-rose-500"></i>Private Cloud</a>
         </nav>
         
         <div class="mt-8 pt-8 border-t border-white/5">
@@ -168,7 +167,7 @@
                 SYSTEM <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500 italic">HUB.</span>
             </h1>
             <p class="text-gray-500 text-xl lg:text-3xl max-w-4xl font-light leading-relaxed">
-                Профессиональный агрегатор инструментов инженерии и автономных агентов. 
+                Профессиональный агрегатор инструментов инженерии, системной оптимизации и автономных агентов. 
             </p>
         </header>
 
@@ -179,38 +178,26 @@
                 <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- INSERT_AI_HERE -->
                 <div class="glass-card p-10 rounded-[2.5rem] card">
                     <div class="flex justify-between items-start mb-10">
                         <div class="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-500 text-xl"><i class="fas fa-bolt"></i></div>
                         <span class="text-[9px] font-black bg-blue-600 text-white px-2 py-0.5 rounded uppercase">Elite</span>
                     </div>
                     <h3 class="text-2xl font-bold mb-4 italic">Droid (Factory AI)</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed mb-8">Вершина автономного кодинга. Пишет сложнейший код.</p>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-8">Вершина автономного кодинга. Пишет сложнейший код, обновляет легаси и управляет инфраструктурой.</p>
                     <a href="https://factory.ai" target="_blank" class="text-[10px] font-black uppercase text-gray-500 hover:text-white">Interface →</a>
                 </div>
-                <!-- INSERT_AI_HERE -->
-            </div>
-        </section>
-
-        <!-- SECTION: AI FOR IMAGE -->
-        <section id="image" class="mb-40 reveal">
-            <div class="flex items-center gap-6 mb-16">
-                <h2 class="text-4xl font-bold tracking-tight text-emerald-500">Ai for Image</h2>
-                <div class="h-px flex-1 bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- INSERT_IMAGE_HERE -->
-            </div>
-        </section>
-
-        <!-- SECTION: STUDY -->
-        <section id="study" class="mb-40 reveal">
-            <div class="flex items-center gap-6 mb-16">
-                <h2 class="text-4xl font-bold tracking-tight text-amber-500">Study</h2>
-                <div class="h-px flex-1 bg-gradient-to-r from-amber-500/20 to-transparent"></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- INSERT_STUDY_HERE -->
+                <div class="glass-card p-10 rounded-[2.5rem] card">
+                    <div class="w-12 h-12 bg-purple-600/10 rounded-2xl flex items-center justify-center text-purple-500 text-xl mb-10"><i class="fas fa-brain-nodes"></i></div>
+                    <h3 class="text-2xl font-bold mb-4 italic">Manus AI v2.0</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-8">Мегамозг с долговременной памятью. Глубокий ресерч, бронирование и полный деплой сервисов.</p>
+                </div>
+                <div class="glass-card p-10 rounded-[2.5rem] card">
+                    <div class="w-12 h-12 bg-amber-600/10 rounded-2xl flex items-center justify-center text-amber-500 text-xl mb-10"><i class="fas fa-compass-drafting"></i></div>
+                    <h3 class="text-2xl font-bold mb-4 italic">Atlas AI Browser</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-8">Браузер-агент. Выполняет действия за вас: саммари, почта, формы, брони и обход Paywall.</p>
+                </div>
             </div>
         </section>
 
@@ -221,28 +208,56 @@
                 <div class="h-px flex-1 bg-gradient-to-r from-blue-500/20 to-transparent"></div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- INSERT_EDU_HERE -->
                 <div class="glass-card p-10 rounded-[3rem]">
-                    <h4 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-10 italic">Google Academy</h4>
+                    <h4 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-10 italic">Google Academy (10 Courses)</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-400 font-medium">
                         <div>• Intro to GenAI</div><div>• LLM Mastery</div>
+                        <div>• Google Cybersecurity</div><div>• Image Gen Theory</div>
+                        <div>• Prompting Essentials</div><div>• Cloud Engineering</div>
+                        <div>• ML Specialization</div><div>• Responsible AI</div>
+                        <div>• Data Analytics</div><div>• Python for Data</div>
                     </div>
                 </div>
-                <!-- INSERT_EDU_HERE -->
+                <div class="glass-card p-10 rounded-[3rem] bg-indigo-900/5">
+                    <h4 class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-10 italic">University Nodes</h4>
+                    <div class="space-y-6">
+                        <p class="text-sm font-bold">Stanford CS336: <span class="font-normal text-gray-500">Language Modeling from Scratch.</span></p>
+                        <p class="text-sm font-bold">Seeing Theory: <span class="font-normal text-gray-500">Визуальный учебник вероятности.</span></p>
+                        <p class="text-sm font-bold">Learn Your Way: <span class="font-normal text-gray-500">Адаптивная наука от Google.</span></p>
+                        <p class="text-[11px] text-gray-600 mt-10"><b>Special PDF:</b> Конспект по LLM (Russian) — Внимание, RL, o3, файнтюнинг.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- SECTION: DEVELOPE -->
         <section id="dev" class="mb-40 reveal">
             <div class="flex items-center gap-6 mb-16">
-                <h2 class="text-4xl font-bold tracking-tight text-blue-400">Develope</h2>
-                <div class="h-px flex-1 bg-gradient-to-r from-blue-400/20 to-transparent"></div>
+                <h2 class="text-4xl font-bold tracking-tight text-emerald-500">Dev Laboratory</h2>
+                <div class="h-px flex-1 bg-gradient-to-r from-emerald-500/20 to-transparent"></div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="glass-card p-8 rounded-3xl card">
-                    <h4 class="font-bold text-sm mb-4 italic text-blue-400">Replit Agent</h4>
-                    <p class="text-[10px] text-gray-500 italic leading-relaxed">Connectors для Notion/Discord.</p>
-                </div>
                 <!-- INSERT_DEV_HERE -->
+                <div class="glass-card p-8 rounded-3xl card">
+                    <h4 class="font-bold text-sm mb-4 italic text-emerald-500">Replit Agent 3</h4>
+                    <p class="text-[10px] text-gray-500 italic leading-relaxed">Connectors для Notion/Discord без API. Полная автоматизация тестов.</p>
+                </div>
+                <div class="glass-card p-8 rounded-3xl card">
+                    <h4 class="font-bold text-sm mb-4 italic text-emerald-500">GigaCode Sber</h4>
+                    <p class="text-[10px] text-gray-500 italic leading-relaxed">Ревьюер в GitVerse. Фикс багов и оптимизация структуры проекта.</p>
+                </div>
+                <div class="glass-card p-8 rounded-3xl card">
+                    <h4 class="font-bold text-sm mb-4 italic text-emerald-500">GitDiagram</h4>
+                    <p class="text-[10px] text-gray-500 italic leading-relaxed">Визуализация сложнейших репозиториев в интерактивные схемы.</p>
+                </div>
+                <div class="glass-card p-8 rounded-3xl card">
+                    <h4 class="font-bold text-sm mb-4 italic text-emerald-500">Onlook UI</h4>
+                    <p class="text-[10px] text-gray-500 italic leading-relaxed">Визуальный редактор кода для дизайнеров (React/Next.js).</p>
+                </div>
+            </div>
+            <div class="mt-8 glass-card p-8 rounded-3xl flex flex-wrap gap-8 text-[11px] text-gray-400 font-bold uppercase tracking-widest">
+                <span>CodeViz</span><span>1000 Resources</span><span>Stack Overflow AI</span><span>Claude CLI</span><span>CodeStrike</span>
             </div>
         </section>
 
@@ -253,47 +268,141 @@
                 <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- INSERT_SYS_HERE -->
                 <div class="glass-card p-8 rounded-3xl border-l-2 border-blue-500">
                     <h4 class="font-bold text-sm mb-2 italic">Win 11 Builds</h4>
-                    <p class="text-[10px] text-gray-500 italic leading-relaxed">24H2/25H2 без мусора.</p>
+                    <p class="text-[10px] text-gray-500 italic leading-relaxed">24H2/25H2 (6ГБ) без мусора, Defender и OneDrive.</p>
                 </div>
-                <!-- INSERT_SYS_HERE -->
+                <div class="glass-card p-8 rounded-3xl">
+                    <h4 class="font-bold text-sm mb-2 italic">Microsoft PC Manager</h4>
+                    <p class="text-[10px] text-gray-500 italic leading-relaxed">Официальный буст системы и очистка системного мусора.</p>
+                </div>
+                <div class="glass-card p-8 rounded-3xl">
+                    <h4 class="font-bold text-sm mb-2 italic">Glow Software</h4>
+                    <p class="text-[10px] text-gray-500 italic leading-relaxed">Диагностика железа, SFC/DISM и фикс битых пикселей.</p>
+                </div>
+                <div class="glass-card p-8 rounded-3xl border-l-2 border-amber-600 bg-amber-600/5">
+                    <h4 class="font-bold text-amber-500 text-[10px] uppercase mb-2">CMD Error Fix:</h4>
+                    <code class="text-[10px] text-amber-200">certutil -error [0x...]</code>
+                </div>
             </div>
-        </section>
-
-        <!-- SECTION: INTERESTING -->
-        <section id="interesting" class="mb-40 reveal">
-            <div class="flex items-center gap-6 mb-16">
-                <h2 class="text-4xl font-bold tracking-tight text-purple-500">Interesting</h2>
-                <div class="h-px flex-1 bg-gradient-to-r from-purple-500/20 to-transparent"></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- INSERT_INTERESTING_HERE -->
+            <div class="mt-8 glass-card p-10 rounded-[3rem] grid grid-cols-2 lg:grid-cols-4 gap-8 text-[10px] text-gray-600 font-bold uppercase italic tracking-widest">
+                <div class="space-y-2"><p>Revo Pro</p><p>TreeSize</p><p>RAMMap</p></div>
+                <div class="space-y-2"><p>Reg Organizer</p><p>W10Privacy</p><p>TweakPower</p></div>
+                <div class="space-y-2"><p>Stirling PDF</p><p>Dolphin PDF</p><p>PDFeXpress</p></div>
+                <div class="space-y-2"><p>Gopeed</p><p>iDownerGo</p><p>Alchemy</p></div>
             </div>
         </section>
 
         <!-- SECTION: SECURITY -->
         <section id="sec" class="mb-40 reveal">
             <div class="flex items-center gap-6 mb-16">
-                <h2 class="text-4xl font-bold tracking-tight text-red-500">Security & OSINT</h2>
+                <h2 class="text-4xl font-bold tracking-tight text-red-500">Security & OSINT Arsenal</h2>
                 <div class="h-px flex-1 bg-gradient-to-r from-red-500/20 to-transparent"></div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- INSERT_SEC_HERE -->
                 <div class="glass-card p-12 rounded-[4rem] border-t-2 border-red-500">
                     <h3 class="text-2xl font-bold mb-6 italic">Social Analyzer</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed mb-10">Пробив по 1000+ соцсетям одновременно.</p>
+                    <p class="text-sm text-gray-400 leading-relaxed mb-10 font-light italic">Профессиональный инструмент разведки. Пробив по 1000+ соцсетям одновременно. OCR для фото, бесшумный парсинг данных цели.</p>
+                    <div class="flex gap-4"><span class="px-3 py-1 bg-red-500/10 text-red-500 text-[9px] font-black rounded-lg uppercase tracking-widest">Police Grade</span></div>
                 </div>
-                <!-- INSERT_SEC_HERE -->
+                <div class="glass-card p-12 rounded-[4rem] border-t-2 border-white/10">
+                    <h3 class="text-2xl font-bold mb-6 italic text-gray-200">TruffleHog</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed mb-10 font-light italic">700+ детекторов. Тотальный поиск утечек паролей, API-ключей и секретов в репозиториях GitHub, S3 и JS-файлах.</p>
+                </div>
+            </div>
+            <div class="mt-8 glass-card p-8 rounded-[2rem] text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em] grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 italic">
+                <div>• Maltego</div><div>• Shodan</div><div>• Maigret</div><div>• Holehe</div><div>• TinEye</div>
+                <div>• FOCA</div><div>• Twint</div><div>• Social Searcher</div><div>• Spyse</div><div>• AdBlock 2.0</div>
+                <div>• OnlyHuman</div><div>• Veracrypt</div><div>• Dataminr</div><div>• Screaming Frog</div><div>• OSINT Framework</div>
             </div>
         </section>
 
         <!-- SECTION: PROMPT VAULT -->
         <section id="vault" class="py-40 reveal">
             <div class="text-center mb-32">
+                <h2 class="text-7xl font-black italic tracking-tighter opacity-10 uppercase select-none">Protocol</h2>
                 <h2 class="text-6xl font-black italic tracking-tighter text-blue-500 relative">PROMPT VAULT.</h2>
             </div>
             <div class="space-y-12 max-w-5xl mx-auto">
                 <!-- INSERT_VAULT_HERE -->
+                <div class="glass-card p-12 rounded-[3.5rem] border-t-2 border-blue-600">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h3 class="text-2xl font-bold italic tracking-tight">01. Advisor Protocol</h3>
+                            <p class="text-[10px] text-gray-600 uppercase tracking-widest mt-2">Критический анализ и поиск слепых зон</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="togglePrompt('p-adv')" class="bg-white/5 border border-white/10 px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">View</button>
+                            <button onclick="copyToClipboard('p-adv-text')" class="bg-blue-600 hover:bg-blue-500 px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/30">Copy</button>
+                        </div>
+                    </div>
+                    <div id="p-adv" class="prompt-pre"><div id="p-adv-text">From now on, stop being agreeable and act as my brutally honest, high-level advisor and mirror. Don’t validate me. Don’t soften the truth. Don’t flatter. Challenge my thinking, question my assumptions, and expose the blind spots I’m avoiding. Be direct, rational, and unfiltered. If my reasoning is weak, dissect it and show why. If I’m fooling myself or lying to myself, point it out. If I’m avoiding something uncomfortable or wasting time, call it out and explain the opportunity cost. Look at my situation with complete objectivity and strategic depth. Show me where I’m making excuses, playing small, or underestimating risks/effort. Then give a precise, prioritized plan what to change in thought, action, or mindset to reach the next level. Hold nothing back. Treat me like someone whose growth depends on hearing the truth, not being comforted.</div></div>
+                </div>
+
+                <div class="glass-card p-12 rounded-[3.5rem] border-t-2 border-emerald-600">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-2xl font-bold italic text-emerald-400">02. EDU-Epistemic Method</h3>
+                        <div class="flex gap-3">
+                            <button onclick="togglePrompt('p-edu')" class="bg-white/5 border border-white/10 px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">View</button>
+                            <button onclick="copyToClipboard('p-edu-text')" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">Copy</button>
+                        </div>
+                    </div>
+                    <div id="p-edu" class="prompt-pre"><div id="p-edu-text">ROLE: EDU-Epistemic AI. MISSION: Co-design standards-aligned curriculum. SETTINGS: CourseTitle=[Python], maxWords=500, format=markdown. RULES: GFM tables, Bloom’s Taxonomy. F1: Outcomes/Skills. F2: Skill Modules (Header, Objective, Content, Knowledge Claims, Interactive CLI Assessment). Answer in Russian.</div></div>
+                </div>
+
+                <div class="glass-card p-12 rounded-[3.5rem] border-l-8 border-purple-600">
+                    <h3 class="text-2xl font-bold mb-8 italic text-purple-400 uppercase tracking-tighter">03. Absolute Plan: 90 Days</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] text-gray-500 font-medium italic leading-relaxed">
+                        <div class="p-8 bg-white/5 rounded-3xl border border-white/5"><span class="text-purple-400 font-black mb-4 block underline">F1: Stabilization (1-30)</span>Чистка шума. ML Ng (1.5ч), сон 7ч, силовые. YT/Pinterest limit 20m.</div>
+                        <div class="p-8 bg-white/5 rounded-3xl border border-white/5"><span class="text-purple-400 font-black mb-4 block underline">F2: Skill Build (31-60)</span>Pet-project на GitHub. Оформление резюме. Рефлексия наблюдателя.</div>
+                        <div class="p-8 bg-white/5 rounded-3xl border border-white/5"><span class="text-purple-400 font-black mb-4 block underline">F3: Breakthrough (61-90)</span>NLP/CV Project. 5 заявок на стажировки. Фин. учет (+10% save).</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-card p-8 rounded-[2.5rem] border-l-4 border-rose-600">
+                        <h4 class="font-bold mb-4 italic text-rose-500 uppercase tracking-widest text-xs">Burnout Session</h4>
+                        <button onclick="copyToClipboard('p-burn')" class="text-[10px] font-black text-gray-600 hover:text-rose-500 underline transition-colors uppercase">Copy Code</button>
+                        <p id="p-burn" class="hidden">Проведи коучинговую сессию: 1. Осознание. 2. Отсечение. 3. Восстановление. 4. Действие (план 7 дней). Задавай вопросы постепенно.</p>
+                    </div>
+                    <div class="glass-card p-8 rounded-[2.5rem] border-l-4 border-emerald-600">
+                        <h4 class="font-bold mb-4 italic text-emerald-500 uppercase tracking-widest text-xs">Vibe-Coding Senior</h4>
+                        <button onclick="copyToClipboard('p-code')" class="text-[10px] font-black text-gray-600 hover:text-emerald-500 underline transition-colors uppercase">Copy Code</button>
+                        <p id="p-code" class="hidden">Как Senior (20 лет опыта), напиши код на [язык] для [действие]. Эффективность, структура, оптимизация. Проведи код-ревью.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PRIVATE -->
+        <section id="private" class="py-40 reveal">
+            <div class="flex items-center gap-6 mb-16">
+                <h2 class="text-4xl font-bold tracking-tight text-rose-500 italic">Private Library</h2>
+                <div class="h-px flex-1 bg-rose-500/10"></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="glass-card p-12 rounded-[4rem] border-l-8 border-rose-600">
+                    <h3 class="text-2xl font-bold mb-8 italic tracking-tighter">Юридический блок</h3>
+                    <div class="text-[11px] text-gray-600 space-y-4 mb-10 font-bold uppercase tracking-widest leading-relaxed">
+                        <p>ИП № 99749/25/61034-ИП (Борванова Е.М.)</p>
+                        <p>Дело № А53-20973/2025 (Банкротство)</p>
+                        <p>Должник: Бураков Денис Максимович</p>
+                    </div>
+                    <button onclick="copyToClipboard('legal-text')" class="w-full py-5 bg-rose-600/10 text-rose-500 rounded-3xl text-[10px] font-black uppercase tracking-[0.3em] transition-all hover:bg-rose-600/20">Copy Statement</button>
+                    <span id="legal-text" class="hidden">На основании пункта 7 части 1 статьи 47 Федерального закона от 02.10.2007 № 229-ФЗ «Об исполнительном производстве» прошу прекратить указанное исполнительное производство в связи с признанием должника банкротом решением Арбитражного суда Ростовской области от 07.08.2025 по делу № А53-20973/2025. Прошу снять все установленные ограничения, включая запрет на выезд.</span>
+                </div>
+                <div class="space-y-8">
+                    <div class="glass-card p-10 rounded-[2.5rem] border-l-4 border-amber-600">
+                        <h4 class="text-xs font-black text-amber-500 uppercase tracking-widest mb-4 italic">ДГТУ Nodes</h4>
+                        <p class="text-[11px] text-gray-500 leading-relaxed italic">Матпомощь (Госуслуги 600238/1), Курсовая: <i>"Передача информации через БЧХ-коды"</i>.</p>
+                    </div>
+                    <div class="glass-card p-10 rounded-[2.5rem] border-l-4 border-emerald-600">
+                        <h4 class="text-xs font-black text-emerald-500 uppercase tracking-widest mb-4 italic">Work Nodes</h4>
+                        <p class="text-[11px] text-gray-500 italic">Remotive, Scribie, Job Hunnt AI, ClearVoice.</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -339,6 +448,22 @@
                 setTimeout(() => { btn.innerText = old; btn.style.background = ""; }, 1500);
             });
         }
+
+        // GLOBAL SEARCH
+        document.getElementById('globalSearch').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.display = card.innerText.toLowerCase().includes(val) ? 'block' : 'none';
+            });
+        });
+
+        // Hotkey ⌘K
+        window.addEventListener('keydown', e => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('globalSearch').focus();
+            }
+        });
     </script>
 </body>
 </html>
