@@ -1,0 +1,6 @@
+aiogram>=3.0
+python-dotenv
+PyGithub
+huggingface_hub
+aiohttp
+requests
