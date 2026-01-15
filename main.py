@@ -30,7 +30,7 @@ def safe_log(text):
 TG_TOKEN = os.getenv("TG_TOKEN")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 HF_TOKEN = os.getenv("HF_TOKEN")
-LLAMA_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
+LLAMA_MODEL = "meta-llama/Llama-3.3-70B-Instruct" 
 REPO_NAME = "YgalaxyY/BookMarkCore"
 FILE_PATH = "index.html"
 
@@ -54,6 +54,7 @@ gh = Github(auth=auth)
 # --- HELPER FUNCTIONS ---
 
 def extract_url_from_text(text):
+    """Поиск ссылок (игнорируем t.me в тексте)"""
     urls = re.findall(r'(https?://[^\s<>")\]]+|www\.[^\s<>")\]]+)', text)
     clean_urls = []
     for u in urls:
@@ -63,6 +64,7 @@ def extract_url_from_text(text):
     return clean_urls[0] if clean_urls else "MISSING"
 
 def clean_and_parse_json(raw_response):
+    """Надежный парсер JSON"""
     text_to_parse = raw_response.strip()
     
     json_block = re.search(r'```json\s*(\{.*?\})\s*```', raw_response, re.DOTALL)
@@ -81,20 +83,73 @@ def clean_and_parse_json(raw_response):
         return json.loads(text_to_parse)
     except json.JSONDecodeError:
         pass 
+    
     try:
         return ast.literal_eval(text_to_parse)
     except Exception as e:
         safe_log(f"JSON Parse Failed: {e}")
         return None
 
+def _fallback_heuristic_analysis(text):
+    """
+    ПЛАН Б: Если ИИ не справился, пробуем определить категорию вручную
+    по ключевым словам и тегам.
+    """
+    safe_log("🔧 Запуск эвристического анализа (Plan B)...")
+    
+    # 1. Проверка на PROMPTS (Теги XML, ключевые фразы)
+    prompt_markers = [
+        '<Role>', '<System>', '<Context>', '<Instructions>', '<Output_Format>', 
+        'Act as a', 'You are a', 'Представь, что ты', 'Напиши промпт', 
+        'System prompt:', 'Prompt:', 'Промт:'
+    ]
+    
+    if any(marker in text for marker in prompt_markers):
+        # Берем первую строку как заголовок (обрезаем до 50 символов)
+        lines = text.split('\n')
+        title = lines[0][:60].strip() + "..." if len(lines) > 0 else "AI Prompt"
+        
+        return {
+            "section": "prompts",
+            "name": title,
+            "desc": "Complex System Prompt (Auto-detected)",
+            "url": "#",
+            "platform": "",
+            "prompt_body": text, # Сохраняем ВЕСЬ текст как промпт
+            "confidence": 100,
+            "alternative": None
+        }
+
+    # 2. Проверка на ссылки (Если есть GitHub -> Dev)
+    url = extract_url_from_text(text)
+    if "github.com" in url:
+        return {
+            "section": "dev",
+            "name": "GitHub Tool",
+            "desc": text[:100] + "...",
+            "url": url,
+            "platform": "",
+            "prompt_body": "",
+            "confidence": 90,
+            "alternative": None
+        }
+
+    return None
+
 async def analyze_content_with_retry(text, retries=3):
+    """
+    Анализ: Сначала ИИ, если 3 раза ошибка -> План Б (Эвристика)
+    """
     for attempt in range(retries):
         data = await asyncio.to_thread(_analyze_logic, text)
         if data:
             return data
         safe_log(f"⚠️ AI Fail (Attempt {attempt+1}/{retries}). Retrying...")
         await asyncio.sleep(1)
-    return None
+    
+    # Если ИИ все 3 раза упал -> пробуем Эвристику
+    safe_log("❌ AI completely failed. Trying Heuristics...")
+    return _fallback_heuristic_analysis(text)
 
 def _analyze_logic(text):
     hard_found_url = extract_url_from_text(text)
@@ -111,15 +166,14 @@ def _analyze_logic(text):
         "   *NOTE:* Even if it mentions 'Presentation' or 'Psychology', if it is a COMMAND for AI -> it is 'prompts'.\n\n"
         "3. 'sys' (SYSTEM): Windows/Linux optimization, drivers, ISOs, cleaners, terminal commands.\n\n"
         "4. 'apk' (MOBILE): Apps for Android/iOS. *Set \"platform\" to Android/iOS/Both.*\n\n"
-        "5. 'study' (EDUCATION & RESEARCH): Academic materials, research tools, presentations/slides tools.\n"
-        "   *Rule: Tools for creating slides/presentations belong HERE.*\n\n"
-        "6. 'dev' (CODE): Libraries, Repos, APIs, Web-dev tools, VS Code extensions.\n"
-        "   *Rule: AI coding assistants go HERE.*\n\n"
-        "7. 'shop' (COMMERCE): Goods, prices, shopping.\n\n"
-        "8. 'fun' (LEISURE): Games, media, entertainment.\n\n"
-        "9. 'ai' (GENERAL AI): News about models, AI industry news, general chatbots. \n"
+        "5. 'study' (EDUCATION & RESEARCH): Academic materials, research tools, finding papers, citations, university help.\n"
+        "   *Rule: Tools that GENERATE slides/presentations belong here (unless it's a raw text prompt).*\n\n"
+        "6. 'dev' (CODE): Libraries, Repos, APIs, Web-dev tools, VS Code extensions, No-Code builders.\n\n"
+        "7. 'shop' (COMMERCE): Goods, prices, shopping lists.\n\n"
+        "8. 'fun' (LEISURE): Games, media, entertainment, jokes, movies.\n\n"
+        "9. 'ai' (GENERAL AI): News about models, AI industry news, general chatbots (like ChatGPT, Claude, Gemini).\n"
         "   *Rule: Use this ONLY if it doesn't fit Prompts, Study, Dev, or OSINT.*\n\n"
-        "10. 'prog' (SYNTAX): Code snippets, tutorials.\n\n"
+        "10. 'prog' (SYNTAX): Code snippets, tutorials on how to code.\n\n"
         "11. 'ideas' (FALLBACK): General notes, uncategorized info.\n\n"
         "### OUTPUT JSON STRUCTURE:\n"
         "{\n"
@@ -134,6 +188,7 @@ def _analyze_logic(text):
         "}\n\n"
         "### STRICT RULES:\n"
         "- NO EMPTY FIELDS: Use \"none\" if missing.\n"
+        "- CAPTURE FULL PROMPT: Do not summarize the 'prompt_body', copy it exactly.\n"
         "- VALID JSON ONLY: Double quotes.\n"
     )
 
@@ -172,20 +227,11 @@ def generate_card_html(data):
     """Генерирует HTML"""
     s = str(data.get('section', 'ai')).lower()
     
-    # Сначала берем сырые данные
-    raw_name = str(data.get('name', 'Resource'))
-    raw_desc = str(data.get('desc', 'No description.'))
-    raw_p_body = str(data.get('prompt_body', ''))
-    raw_platform = str(data.get('platform', 'App'))
+    name = html.escape(str(data.get('name', 'Resource')))
     url = str(data.get('url', '#'))
-
-    # Экранируем стандартные поля
-    name = html.escape(raw_name)
-    desc = html.escape(raw_desc)
-    platform = html.escape(raw_platform)
-    
-    # Для всех кроме Prompts экранируем body
-    p_body = html.escape(raw_p_body) 
+    desc = html.escape(str(data.get('desc', 'No description.')))
+    p_body = html.escape(str(data.get('prompt_body', '')))
+    platform = html.escape(str(data.get('platform', 'App')))
 
     meta = {
         "ideas":  {"icon": "lightbulb",      "color": "yellow"},
@@ -207,10 +253,8 @@ def generate_card_html(data):
 
     if s == 'prompts':
         p_id = f"p-{uuid.uuid4().hex[:6]}"
-        
-        # --- FIX: ИСПОЛЬЗУЕМ XMP ДЛЯ ПРОМПТОВ ---
-        # Очищаем от закрывающего тега xmp, чтобы не сломать сайт
-        safe_raw_body = raw_p_body.replace('</xmp>', '')
+        # --- FIX: ИСПОЛЬЗУЕМ СЫРОЙ ТЕКСТ (не html.escape) ---
+        safe_raw_body = str(data.get('prompt_body', '')).replace('</xmp>', '')
         
         return f"""
         <div class="glass-card p-8 rounded-[2rem] border-l-4 border-{color}-500 mb-6 reveal active relative overflow-hidden group">
@@ -228,7 +272,6 @@ def generate_card_html(data):
                     </button>
                 </div>
                 <div class="bg-black/30 rounded-xl p-4 border border-white/5">
-                    <!-- ИСПОЛЬЗУЕМ XMP ДЛЯ RAW ОТОБРАЖЕНИЯ -->
                     <div id="{p_id}-text" class="text-xs text-gray-300 font-mono leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto custom-scrollbar"><xmp>{safe_raw_body}</xmp></div>
                 </div>
                 <p class="text-gray-500 text-xs mt-3 italic">{desc}</p>
@@ -387,7 +430,7 @@ async def main_content_handler(message: types.Message, state: FSMContext):
     data = await analyze_content_with_retry(content)
 
     if not data:
-        await status.edit_text("❌ Ошибка анализа.")
+        await status.edit_text("❌ Ошибка анализа (Сложный контент, попробуй упростить или перезапустить).")
         return
 
     section = str(data.get('section', 'ai')).lower()
