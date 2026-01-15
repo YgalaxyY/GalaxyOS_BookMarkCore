@@ -30,9 +30,17 @@ def safe_log(text):
 TG_TOKEN = os.getenv("TG_TOKEN")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 HF_TOKEN = os.getenv("HF_TOKEN")
-LLAMA_MODEL = "meta-llama/Llama-3.3-70B-Instruct" 
 REPO_NAME = "YgalaxyY/BookMarkCore"
 FILE_PATH = "index.html"
+
+# СПИСОК МОДЕЛЕЙ (Каскадная система)
+# Если первая не отвечает, бот переходит ко второй и так далее.
+AI_MODELS_QUEUE = [
+    "Qwen/Qwen2.5-72B-Instruct",       # 1. Топ по логике и русскому языку
+    "meta-llama/Llama-3.3-70B-Instruct", # 2. Мощная, но часто перегружена
+    "meta-llama/Meta-Llama-3.1-8B-Instruct", # 3. Легкая и быстрая (резерв)
+    "mistralai/Mistral-Nemo-Instruct-2407"   # 4. Запасной вариант
+]
 
 # --- SYSTEM CHECK ---
 if not all([TG_TOKEN, GITHUB_TOKEN, HF_TOKEN]):
@@ -47,14 +55,13 @@ class ToolForm(StatesGroup):
 # --- INITIALIZATION ---
 bot = Bot(token=TG_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
-hf_client = InferenceClient(model=LLAMA_MODEL, token=HF_TOKEN)
 auth = Auth.Token(GITHUB_TOKEN)
 gh = Github(auth=auth)
 
 # --- HELPER FUNCTIONS ---
 
 def extract_url_from_text(text):
-    """Поиск ссылок (игнорируем t.me в тексте)"""
+    """Поиск ссылок (игнорируем t.me внутри текста)"""
     urls = re.findall(r'(https?://[^\s<>")\]]+|www\.[^\s<>")\]]+)', text)
     clean_urls = []
     for u in urls:
@@ -83,78 +90,70 @@ def clean_and_parse_json(raw_response):
         return json.loads(text_to_parse)
     except json.JSONDecodeError:
         pass 
-    
     try:
         return ast.literal_eval(text_to_parse)
     except Exception as e:
         safe_log(f"JSON Parse Failed: {e}")
         return None
 
-def _fallback_heuristic_analysis(text):
+# --- PLAN B: HEURISTIC ANALYSIS ---
+def fallback_heuristic_analysis(text):
     """
-    ПЛАН Б: Если ИИ не справился, пробуем определить категорию вручную
-    по ключевым словам и тегам.
+    Если все нейросети упали, анализируем текст вручную по ключевым словам.
     """
-    safe_log("🔧 Запуск эвристического анализа (Plan B)...")
+    safe_log("🔧 ВСЕ МОДЕЛИ ЗАНЯТЫ. Запуск эвристического анализа (Plan B)...")
     
     # 1. Проверка на PROMPTS (Теги XML, ключевые фразы)
     prompt_markers = [
-        '<Role>', '<System>', '<Context>', '<Instructions>', '<Output_Format>', 
-        'Act as a', 'You are a', 'Представь, что ты', 'Напиши промпт', 
-        'System prompt:', 'Prompt:', 'Промт:'
+        '<Role>', '<System>', '<Context>', '<Instructions>', 
+        'Act as a', 'You are a', 'Представь, что ты', 
+        'Напиши промпт', 'System prompt:', 'Промт:'
     ]
-    
     if any(marker in text for marker in prompt_markers):
-        # Берем первую строку как заголовок (обрезаем до 50 символов)
         lines = text.split('\n')
         title = lines[0][:60].strip() + "..." if len(lines) > 0 else "AI Prompt"
-        
         return {
             "section": "prompts",
             "name": title,
-            "desc": "Complex System Prompt (Auto-detected)",
+            "desc": "System Prompt (Auto-detected via fallback)",
             "url": "#",
             "platform": "",
-            "prompt_body": text, # Сохраняем ВЕСЬ текст как промпт
-            "confidence": 100,
-            "alternative": None
+            "prompt_body": text, # Сохраняем весь текст
+            "confidence": 100
         }
 
-    # 2. Проверка на ссылки (Если есть GitHub -> Dev)
+    # 2. Проверка на GitHub
     url = extract_url_from_text(text)
     if "github.com" in url:
         return {
             "section": "dev",
-            "name": "GitHub Tool",
+            "name": "GitHub Repository",
             "desc": text[:100] + "...",
             "url": url,
             "platform": "",
             "prompt_body": "",
-            "confidence": 90,
-            "alternative": None
+            "confidence": 90
         }
 
-    return None
+    # 3. Дефолт - Ideas
+    return {
+        "section": "ideas",
+        "name": "New Note",
+        "desc": text[:100] + "...",
+        "url": url if url != "MISSING" else "#",
+        "platform": "",
+        "prompt_body": "",
+        "confidence": 50
+    }
 
-async def analyze_content_with_retry(text, retries=3):
+# --- AI CORE LOGIC ---
+async def analyze_with_model_rotation(text):
     """
-    Анализ: Сначала ИИ, если 3 раза ошибка -> План Б (Эвристика)
+    Пробует модели по очереди. Если одна падает, берет следующую.
     """
-    for attempt in range(retries):
-        data = await asyncio.to_thread(_analyze_logic, text)
-        if data:
-            return data
-        safe_log(f"⚠️ AI Fail (Attempt {attempt+1}/{retries}). Retrying...")
-        await asyncio.sleep(1)
-    
-    # Если ИИ все 3 раза упал -> пробуем Эвристику
-    safe_log("❌ AI completely failed. Trying Heuristics...")
-    return _fallback_heuristic_analysis(text)
-
-def _analyze_logic(text):
     hard_found_url = extract_url_from_text(text)
     is_url_present = hard_found_url != "MISSING"
-    
+
     system_prompt = (
         "### ROLE: Galaxy Intelligence Core (Strict Classifier)\n\n"
         "### CATEGORY HIERARCHY & LOGIC (Check in this order):\n\n"
@@ -167,11 +166,11 @@ def _analyze_logic(text):
         "3. 'sys' (SYSTEM): Windows/Linux optimization, drivers, ISOs, cleaners, terminal commands.\n\n"
         "4. 'apk' (MOBILE): Apps for Android/iOS. *Set \"platform\" to Android/iOS/Both.*\n\n"
         "5. 'study' (EDUCATION & RESEARCH): Academic materials, research tools, finding papers, citations, university help.\n"
-        "   *Rule: Tools that GENERATE slides/presentations belong here (unless it's a raw text prompt).*\n\n"
+        "   *Rule: Tools that GENERATE slides/presentations belong here.*\n\n"
         "6. 'dev' (CODE): Libraries, Repos, APIs, Web-dev tools, VS Code extensions, No-Code builders.\n\n"
         "7. 'shop' (COMMERCE): Goods, prices, shopping lists.\n\n"
         "8. 'fun' (LEISURE): Games, media, entertainment, jokes, movies.\n\n"
-        "9. 'ai' (GENERAL AI): News about models, AI industry news, general chatbots (like ChatGPT, Claude, Gemini).\n"
+        "9. 'ai' (GENERAL AI): News about models, AI industry news, general chatbots. \n"
         "   *Rule: Use this ONLY if it doesn't fit Prompts, Study, Dev, or OSINT.*\n\n"
         "10. 'prog' (SYNTAX): Code snippets, tutorials on how to code.\n\n"
         "11. 'ideas' (FALLBACK): General notes, uncategorized info.\n\n"
@@ -179,7 +178,7 @@ def _analyze_logic(text):
         "{\n"
         "  \"section\": \"primary_category\",\n"
         "  \"alternative\": \"secondary_category_if_unsure_or_none\",\n"
-        "  \"confidence\": 85,  // Integer 0-100.\n"
+        "  \"confidence\": 85,\n"
         "  \"name\": \"Short Title En\",\n"
         "  \"desc\": \"Summary in Russian\",\n"
         "  \"url\": \"Link or 'none'\",\n"
@@ -192,36 +191,45 @@ def _analyze_logic(text):
         "- VALID JSON ONLY: Double quotes.\n"
     )
 
-    user_prompt = (
-        f"ANALYZE THIS POST:\n{text[:8000]}\n"
-        f"HARDWARE SCAN: URL found -> {hard_found_url}\n"
-    )
+    user_prompt = f"ANALYZE THIS POST:\n{text[:8000]}\nHARDWARE SCAN: URL found -> {hard_found_url}\n"
 
-    try:
-        response = hf_client.chat_completion(
-            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
-            max_tokens=4000,
-            temperature=0.1
-        )
-        content = response.choices[0].message.content.strip()
-        data = clean_and_parse_json(content)
-        
-        if not data: return None
-
-        ai_url = data.get('url', '')
-        if str(ai_url).lower() in ["none", "missing", ""]:
-             data['url'] = hard_found_url if is_url_present else "#"
-             
-        if data.get('platform') == 'none': data['platform'] = ''
-        if data.get('prompt_body') == 'none': data['prompt_body'] = ''
-        if data.get('alternative') == 'none': data['alternative'] = None
-        if 'confidence' not in data: data['confidence'] = 100
+    # Перебор моделей
+    for model_name in AI_MODELS_QUEUE:
+        safe_log(f"🤖 Trying model: {model_name}...")
+        try:
+            # Создаем клиент под конкретную модель
+            client = InferenceClient(model=model_name, token=HF_TOKEN)
             
-        return data
+            response = await asyncio.to_thread(
+                client.chat_completion,
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+                max_tokens=4000,
+                temperature=0.1
+            )
+            content = response.choices[0].message.content.strip()
+            data = clean_and_parse_json(content)
+            
+            if data:
+                # Успех! Обрабатываем и возвращаем
+                safe_log(f"✅ Success with {model_name}")
+                
+                ai_url = data.get('url', '')
+                if str(ai_url).lower() in ["none", "missing", ""]:
+                     data['url'] = hard_found_url if is_url_present else "#"
+                
+                if data.get('platform') == 'none': data['platform'] = ''
+                if data.get('prompt_body') == 'none': data['prompt_body'] = ''
+                if data.get('alternative') == 'none': data['alternative'] = None
+                if 'confidence' not in data: data['confidence'] = 100
+                
+                return data
+            
+        except Exception as e:
+            safe_log(f"❌ Error with {model_name}: {e}")
+            continue # Пробуем следующую модель
 
-    except Exception as e:
-        safe_log(f"AI Error: {e}")
-        return None
+    # Если ни одна модель не справилась
+    return fallback_heuristic_analysis(text)
 
 def generate_card_html(data):
     """Генерирует HTML"""
@@ -253,9 +261,7 @@ def generate_card_html(data):
 
     if s == 'prompts':
         p_id = f"p-{uuid.uuid4().hex[:6]}"
-        # --- FIX: ИСПОЛЬЗУЕМ СЫРОЙ ТЕКСТ (не html.escape) ---
         safe_raw_body = str(data.get('prompt_body', '')).replace('</xmp>', '')
-        
         return f"""
         <div class="glass-card p-8 rounded-[2rem] border-l-4 border-{color}-500 mb-6 reveal active relative overflow-hidden group">
             <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -427,10 +433,12 @@ async def main_content_handler(message: types.Message, state: FSMContext):
     if len(content.strip()) < 5 or content.startswith('/'): return
 
     status = await message.answer("🧠 Galaxy AI: Анализ...")
-    data = await analyze_content_with_retry(content)
+    
+    # ЗАПУСКАЕМ КАСКАДНЫЙ АНАЛИЗ (Модель 1 -> Модель 2 -> ... -> Эвристика)
+    data = await analyze_with_model_rotation(content)
 
     if not data:
-        await status.edit_text("❌ Ошибка анализа (Сложный контент, попробуй упростить или перезапустить).")
+        await status.edit_text("❌ Ошибка анализа (Все модели заняты).")
         return
 
     section = str(data.get('section', 'ai')).lower()
