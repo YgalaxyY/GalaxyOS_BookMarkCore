@@ -61,15 +61,26 @@ gh = Github(auth=auth)
 
 def extract_url_from_text(text):
     """
-    Ищет ссылки. Игнорирует ссылки на сам телеграм (t.me), 
-    чтобы не сохранять ссылку на канал вместо инструмента.
+    Ищет ссылки.
+    1. Игнорирует общие ссылки на каналы (t.me/channel), так как это часто реклама.
+    2. НО! Принимает ссылки на КОНКРЕТНЫЕ посты (t.me/channel/123), так как это может быть ресурс.
     """
     urls = re.findall(r'(https?://[^\s<>")\]]+|www\.[^\s<>")\]]+)', text)
     clean_urls = []
+    
     for u in urls:
-        u = u.rstrip(').,;]') # Убираем точки/запятые в конце
-        if "t.me" not in u and "telegram.me" not in u:
-            clean_urls.append(u)
+        u = u.rstrip(').,;]') # Убираем мусор в конце
+        
+        # Логика для Telegram
+        if "t.me" in u or "telegram.me" in u:
+            # Если это ссылка на конкретный пост (есть цифры в конце) -> Берем
+            if re.search(r'\/[\w_]+\/\d+', u):
+                clean_urls.append(u)
+            # Иначе (просто ссылка на канал) -> Игнорируем
+            continue
+            
+        clean_urls.append(u)
+        
     return clean_urls[0] if clean_urls else "MISSING"
 
 def clean_and_parse_json(raw_response):
@@ -446,7 +457,7 @@ async def manual_link_handler(message: types.Message, state: FSMContext):
     """Обработка ручного ввода ссылки"""
     state_data = await state.get_data()
     if 'tool_data' not in state_data:
-        await message.answer("❌ Данные потеряны.")
+        await message.answer("❌ Данные потеряны (Бот перезагрузился).")
         await state.clear()
         return
 
@@ -462,7 +473,6 @@ async def manual_link_handler(message: types.Message, state: FSMContext):
         await status.edit_text(f"✅ **{tool_data['name']}** успешно добавлен!")
         await state.clear()
     elif result == "DUPLICATE":
-        # Если дубликат даже с новой ссылкой
         keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
             [types.InlineKeyboardButton(text="✅ Добавить", callback_data="dup_yes")],
             [types.InlineKeyboardButton(text="❌ Отмена", callback_data="dup_no")]
@@ -478,6 +488,13 @@ async def manual_link_handler(message: types.Message, state: FSMContext):
 async def main_content_handler(message: types.Message, state: FSMContext):
     """ГЛАВНЫЙ ОБРАБОТЧИК"""
     content = message.text or message.caption or ""
+    
+    # 1. ЗАЩИТА ОТ ГОЛЫХ ССЫЛОК (Если мы не в состоянии ожидания)
+    # Если сообщение - это просто URL, и бот никого не ждал -> значит контекст потерян
+    if re.match(r'^https?://\S+$', content.strip()):
+        await message.reply("⚠️ Это просто ссылка. Если это дополнение к посту, то я потерял контекст (перезагрузка сервера). Пожалуйста, отправь пост целиком.")
+        return
+
     if len(content.strip()) < 5: return
 
     status = await message.answer("🧠 Galaxy AI: Анализ...")
@@ -495,7 +512,7 @@ async def main_content_handler(message: types.Message, state: FSMContext):
     name = data.get('name', 'Unknown')
     url = str(data.get('url', ''))
     
-    # 1. Если ИИ сомневается
+    # 2. Если ИИ сомневается
     if confidence < 80 and alt_section and alt_section != section:
         keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
             [
@@ -509,7 +526,7 @@ async def main_content_handler(message: types.Message, state: FSMContext):
         await status.edit_text(f"🤔 **Сомнения** ({confidence}%)\nОбъект: **{name}**", reply_markup=keyboard)
         return
 
-    # 2. Проверка ссылки (нужна ли она)
+    # 3. Проверка ссылки (нужна ли она)
     is_no_link = section in ['prompts', 'ideas', 'shop', 'fun']
     is_bad = (url in ["MISSING", "", "#", "None"] or "ygalaxyy" in url)
 
