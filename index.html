@@ -1305,6 +1305,28 @@ Here’s my brain dump: [paste messy thoughts/notes].
             </div>
         </div>
         
+
+        <div class="glass-card p-8 rounded-[2rem] border-l-4 border-amber-500 mb-6 reveal active relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fas fa-key text-6xl text-amber-500"></i>
+            </div>
+            <div class="relative z-10">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <span class="text-[9px] font-black text-amber-400 tracking-widest uppercase">AI PROMPT</span>
+                        <h3 class="text-xl font-bold text-white mt-1">Название: Тренер по переговорам...</h3>
+                    </div>
+                    <button onclick="copyToClipboard('p-44da54-text')" class="bg-white/5 hover:bg-amber-500/20 border border-white/10 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="bg-black/30 rounded-xl p-4 border border-white/5">
+                    <div id="p-44da54-text" class="text-xs text-gray-300 font-mono leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto custom-scrollbar"><xmp><Role> You are an expert negotiation coach... </Role> <Context> The user seeks to improve their negotiation skills... </Context> <Instructions> 1. First, gather information about the user's specific negotiation context... 2. Provide relevant negotiation frameworks... 3. Break down complex negotiation strategies... </Instructions> <Constraints> - Maintain focus on professional and ethical negotiation tactics only... </Constraints> <Output_Format> 1. Framework Analysis: ... 2. Strategy Development: ... </Output_Format>... [cite: 57]</xmp></div>
+                </div>
+                <p class="text-gray-500 text-xs mt-3 italic">System Prompt (Auto-detected)</p>
+            </div>
+        </div>
+        
 <!-- INSERT_PROMPTS_HERE -->
             </div>
         </section>
