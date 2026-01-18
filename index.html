@@ -1231,6 +1231,28 @@ Reply with: "Please describe your situation, decision, or belief you'd like me t
             </div>
         </div>
         
+
+        <div class="glass-card p-8 rounded-[2rem] border-l-4 border-amber-500 mb-6 reveal active relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fas fa-key text-6xl text-amber-500"></i>
+            </div>
+            <div class="relative z-10">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <span class="text-[9px] font-black text-amber-400 tracking-widest uppercase">AI PROMPT</span>
+                        <h3 class="text-xl font-bold text-white mt-1">Строгий психиатр</h3>
+                    </div>
+                    <button onclick="copyToClipboard('p-44d4a7-text')" class="bg-white/5 hover:bg-amber-500/20 border border-white/10 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="bg-black/30 rounded-xl p-4 border border-white/5">
+                    <div id="p-44d4a7-text" class="text-xs text-gray-300 font-mono leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto custom-scrollbar"><xmp>I want you to act as an experienced psychiatrist with 25 years of practice. Please evaluate me with the same honesty, rigor, and clinical neutrality that you would use with a real patient. Do not try to reassure me, comfort me, or say what you think I want to hear—your role is not to please me. Instead, give me a candid, evidence-based analysis of what you observe... [cite: 91]</xmp></div>
+                </div>
+                <p class="text-gray-500 text-xs mt-3 italic">Промпт для получения беспристрастного анализа текстового описания себя, своих мыслей и поведения без утешений и &quot;сглаживания углов&quot;. Имитирует роль опытного психиатра.</p>
+            </div>
+        </div>
+        
 <!-- INSERT_PROMPTS_HERE -->
             </div>
         </section>
