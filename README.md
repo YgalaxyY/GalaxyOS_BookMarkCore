@@ -1,78 +1,58 @@
-<div align="center">
+# GalaxyOS BookMarkCore
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f172a,100:334155&height=200&section=header&text=BOOKMARK%20CORE&fontSize=70&animation=fadeIn&fontColor=38bdf8" width="100%" style="border-radius: 20px;" />
+Личный проект на Python: Telegram-бот принимает текст и ссылки, классифицирует материалы через готовые языковые модели и обновляет HTML-каталог через GitHub API.
 
-<br>
+Проект создан с активной помощью AI-инструментов. Здесь опубликован код интеграции Telegram, LLM API и GitHub. Собственные языковые модели в этом проекте не обучаются.
 
-<a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=20&duration=3000&pause=1000&color=38BDF8&center=true&vCenter=true&width=600&height=40&lines=>>+SYSTEM:+GALAXY+INTELLIGENCE+BOT;>>+ENGINE:+LLM+CASCADE+v4.0;>>+DEPLOING:+AUTO-GITHUB+SYNC;>>+STATUS:+READY+FOR+CURATION" alt="Typing SVG" />
-</a>
+## Как устроен поток данных
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white">
-  <img src="https://img.shields.io/badge/Framework-Aiogram_3-0088CC?style=for-the-badge&logo=telegram">
-  <img src="https://img.shields.io/badge/AI-HuggingFace_Hub-FFD21E?style=for-the-badge">
-  <img src="https://img.shields.io/badge/Sync-GitHub_API-181717?style=for-the-badge&logo=github">
-</p>
+```text
+Сообщение в Telegram
+    → обработка текста и ссылки
+    → классификация через Hugging Face Inference API
+    → разбор JSON и выбор категории
+    → проверка дубликата
+    → HTML-карточка и коммит в целевой GitHub-репозиторий
+```
 
-</div>
+В `main.py` есть очистка JSON-ответов, очередь резервных моделей, диалог выбора категории и подтверждения дубликатов. При ошибках модели предусмотрен эвристический разбор. Проверка дубликатов использует нормализованный URL и название, найденные в HTML; это упрощённая проверка.
 
-## 🌌 О Проекте
+## Технологии
 
-**BookMarkCore** — это интеллектуальное связующее звено между входящим потоком информации из Telegram и вашим публичным портфолио/базой знаний на GitHub. Бот не просто сохраняет ссылки, он анализирует их смысл, классифицирует по категориям и автоматически вносит изменения в HTML-код вашего сайта.
+Python, aiogram, asyncio, PyGithub, huggingface_hub, aiohttp, python-dotenv. В очереди моделей указаны Qwen, Llama и Mistral; фактическая доступность зависит от провайдера, доступа к модели и лимитов API.
 
-### 🧠 Интеллектуальное Ядро (AI Cascade)
-Проект использует технологию **Model Fallback**. Если основная модель недоступна или перегружена, система автоматически переключает контекст на следующую в очереди:
-1.  **Qwen 2.5 (72B)** — логический центр.
-2.  **Llama 3.3 (70B)** — высокопроизводительный резерв.
-3.  **Llama 3.1 (8B)** — скоростной анализатор.
-4.  **Mistral Nemo** — финальный уровень отказоустойчивости.
+## Настройка
 
----
+1. Создайте отдельное окружение и установите зависимости из `requirements.txt`.
+2. Создайте `.env` со своими значениями:
 
-## ⚡ Технологический Pipeline
+```env
+TG_TOKEN=
+GITHUB_TOKEN=
+HF_TOKEN=
+ADMIN_ID=
+```
 
+`ADMIN_ID` должен быть числовым Telegram ID пользователя. Пустое значение вызовет ошибку преобразования; при значении `0` проверка владельца в обработчике сообщений отключается. Для личного бота укажите свой ID. Ключи храните локально и не добавляйте в Git.
 
+3. В `main.py` явно настройте `REPO_NAME` и `FILE_PATH`. Сейчас имя репозитория зашито в коде как `YgalaxyY/BookMarkCore`; переменная `REPO_NAME` из `.env` не читается. Для проверки используйте отдельный тестовый репозиторий с веткой `main`.
+4. Подготовьте в целевом HTML маркеры категорий в формате `<!-- INSERT_AI_HERE -->`. Значение `AI` меняется на ключ нужной категории в верхнем регистре.
+5. Запустите:
 
-1.  **Прием данных:** Бот принимает текст, ссылки или системные промпты.
-2.  **Heuristic Check:** Мгновенный анализ на наличие паттернов промптов (Role/Context/Instructions). Если это промпт — ИИ пропускается для экономии токенов.
-3.  **AI Classification:** Если эвристика не сработала, каскад LLM классифицирует ресурс в одну из 11 категорий (OSINT, Dev, Study, AI и т.д.).
-4.  **GitHub Git-Sync:** Автоматическое обновление `index.html`. Бот сам находит нужный HTML-комментарий (маркер) и вставляет новую карточку с анимацией.
-5.  **FSM Logic:** Обработка спорных моментов (сомнение в категории, обнаружение дубликатов) через диалоговые окна (Inline Buttons).
+```sh
+python main.py
+```
 
----
+Бот создаёт коммиты в настроенном репозитории и отправляет текст на внешний inference-сервис. Для знакомства с проектом используйте искусственные примеры сообщений. Токен GitHub должен давать запись только в выбранный тестовый репозиторий.
 
-## 🛠 Key Features (Технические фишки)
+## Где смотреть реализацию
 
-* **Duplicate Detection:** Проверка URL перед коммитом — защита от замусоривания репозитория.
-* **Force Push Mode:** Возможность принудительной записи через Telegram-интерфейс.
-* **Smart Cleaning:** Очистка JSON-ответов нейросетей от лишних Markdown-тегов и артефактов.
-* **Web Server Integration:** Встроенный сервер на `aiohttp` для прохождения Health Check на хостингах (Render/Railway).
-* **Glassmorphism Design:** Генерация HTML-карточек с использованием стилей Tailwind и эффектов "стеклянного" дизайна.
+- `clean_and_parse_json` — очистка и разбор ответа модели.
+- `analyze_content_full_cycle` — обращения к моделям и резервный разбор.
+- `normalize_url` и `sync_push_to_github` — проверка дубликатов и запись HTML.
+- Обработчики aiogram — диалоги выбора категории и подтверждения.
+- `index.html` и `filters.js` — интерфейс каталога.
 
----
+## Ограничения
 
-## 🚀 Deployment (Развертывание)
-
-1.  **Окружение:** Создайте `.env` файл:
-    ```env
-    TG_TOKEN=ваш_токен_бота
-    GITHUB_TOKEN=ваш_github_classic_token
-    HF_TOKEN=ваш_huggingface_token
-    REPO_NAME=username/repo
-    ```
-2.  **HTML Метки:** Вставьте в ваш `index.html` маркеры вида `` для каждой категории.
-3.  **Запуск:**
-    ```bash
-    pip install -r requirements.txt
-    python main.py
-    ```
-
----
-
-<div align="center">
-  <p style="color: #475569; font-size: 11px;">
-    DEVELOPED BY GALAXYY • SYSTEM ARCHITECT v4.0<br>
-    POWERED BY HUGGING FACE INFERENCE API
-  </p>
-</div>
+Это личный прототип. Внешние API могут менять доступность моделей и лимиты. Требуется настройка целевого репозитория и HTML-маркеров; конфигурация пока частично хранится в коде. Полный запуск с внешними сервисами при подготовке этого описания не проверялся. Промышленная надёжность и качество классификации не измерены.
