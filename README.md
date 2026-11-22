@@ -1,57 +1,43 @@
-# GalaxyOS BookMarkCore
+# BookMarkCore
 
-Личный проект на Python: Telegram-бот принимает текст и ссылки, классифицирует материалы через готовые языковые модели и обновляет HTML-каталог через GitHub API.
+A personal Python bot that turns Telegram messages into a browsable HTML bookmark catalog. It classifies text and links using hosted language models and publishes new cards via the GitHub API.
 
+[Read the source](main.py) · [Catalog interface](index.html) · [Русский](README.ru.md)
 
-## Как устроен поток данных
+## What the code does
 
-```text
-Сообщение в Telegram
-    → обработка текста и ссылки
-    → классификация через Hugging Face Inference API
-    → разбор JSON и выбор категории
-    → проверка дубликата
-    → HTML-карточка и коммит в целевой GitHub-репозиторий
+1. Receives a message and extracts the link when present.
+2. Requests a category from an LLM API, parses the JSON response and tries fallback models or a rule-based classification when needed.
+3. Checks the existing HTML for a matching normalized URL or title before publishing. The normal link flow lets the user cancel or confirm a possible duplicate.
+4. Inserts the card into the category section and commits the change to the configured GitHub repository.
+
+The bot is built with Python, aiogram, asyncio, PyGithub, Hugging Face Inference and aiohttp. The repository contains the implementation and catalog interface. The model calls use existing models.
+
+## Setup in a test repository
+
+Create a virtual environment, activate it and install the packages from [requirements.txt](requirements.txt).
+
+```sh
+python -m pip install -r requirements.txt
 ```
 
-В `main.py` есть очистка JSON-ответов, очередь резервных моделей, диалог выбора категории и подтверждения дубликатов. При ошибках модели предусмотрен эвристический разбор. Проверка дубликатов использует нормализованный URL и название, найденные в HTML; это упрощённая проверка.
+Set these variables locally in `.env`. Use your numeric Telegram ID as `ADMIN_ID`. A value of `0` disables the owner check.
 
-## Технологии
-
-Python, aiogram, asyncio, PyGithub, huggingface_hub, aiohttp, python-dotenv. В очереди моделей указаны Qwen, Llama и Mistral; фактическая доступность зависит от провайдера, доступа к модели и лимитов API.
-
-## Настройка
-
-1. Создайте отдельное окружение и установите зависимости из `requirements.txt`.
-2. Создайте `.env` со своими значениями:
-
-```env
+```dotenv
 TG_TOKEN=
 GITHUB_TOKEN=
 HF_TOKEN=
 ADMIN_ID=
 ```
 
-`ADMIN_ID` должен быть числовым Telegram ID пользователя. Пустое значение вызовет ошибку преобразования; при значении `0` проверка владельца в обработчике сообщений отключается. Для личного бота укажите свой ID. Ключи храните локально и не добавляйте в Git.
+Set `REPO_NAME` and `FILE_PATH` in [main.py](main.py) to a dedicated test repository and HTML file. The current implementation expects the `main` branch and markers such as `<!-- INSERT_AI_HERE -->` for the target categories. Give the GitHub token write access only to that test repository. Run `python main.py` and send the bot a non-sensitive sample link.
 
-3. В `main.py` явно настройте `REPO_NAME` и `FILE_PATH`. Сейчас имя репозитория зашито в коде как `YgalaxyY/BookMarkCore`; переменная `REPO_NAME` из `.env` не читается. Для проверки используйте отдельный тестовый репозиторий с веткой `main`.
-4. Подготовьте в целевом HTML маркеры категорий в формате `<!-- INSERT_AI_HERE -->`. Значение `AI` меняется на ключ нужной категории в верхнем регистре.
-5. Запустите:
+## Where to start in the code
 
-```sh
-python main.py
-```
+- `clean_and_parse_json` and `analyze_content_full_cycle` handle model output, fallbacks and classification.
+- `normalize_url` and `sync_push_to_github` handle basic duplicate checks and HTML publication.
+- [filters.js](filters.js) implements filtering in the catalog.
 
-Бот создаёт коммиты в настроенном репозитории и отправляет текст на внешний inference-сервис. Для знакомства с проектом используйте искусственные примеры сообщений. Токен GitHub должен давать запись только в выбранный тестовый репозиторий.
+## Project status
 
-## Где смотреть реализацию
-
-- `clean_and_parse_json` — очистка и разбор ответа модели.
-- `analyze_content_full_cycle` — обращения к моделям и резервный разбор.
-- `normalize_url` и `sync_push_to_github` — проверка дубликатов и запись HTML.
-- Обработчики aiogram — диалоги выбора категории и подтверждения.
-- `index.html` и `filters.js` — интерфейс каталога.
-
-## Ограничения
-
-Это личный прототип. Внешние API могут менять доступность моделей и лимиты. Требуется настройка целевого репозитория и HTML-маркеров; конфигурация пока частично хранится в коде. Полный запуск с внешними сервисами при подготовке этого описания не проверялся. Промышленная надёжность и качество классификации не измерены.
+AI-assisted personal prototype. Message text is sent to an external inference service. Provider and model availability can change. Duplicate detection is a simplified HTML lookup. Classification quality and end-to-end reliability have not been benchmarked.
